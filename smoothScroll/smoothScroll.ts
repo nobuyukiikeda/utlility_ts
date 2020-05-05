@@ -1,31 +1,35 @@
-import { EasingFunctions } from "./easingFunctions";
+import { EasingFunctions } from './easingFunctions';
 
 export default class SmoothScroll {
-  scrollSecond = 1;
+  scrollSpeed: number; // ms
   fps = 60;
-  timeRate = 1 / (this.scrollSecond * this.fps);
+  timeRate: number;
+
+  constructor(scrollSpeed: number = 1000) {
+    this.scrollSpeed = scrollSpeed;
+    this.timeRate = 1000 / (this.scrollSpeed * this.fps);
+  }
 
   public init() {
-    const host = location.host;
-
-    const anchors = document.getElementsByTagName("a");
-    const regExp = /^#/;
+    const anchors = document.getElementsByTagName('a');
+    const current = location.href.replace(/#.*/, '');
 
     const offset = screen.width < 1024 ? 58 : 0;
 
     for (let i = 0; i < anchors.length; i++) {
       const anchor = anchors[i];
-      const hrefs = anchor.href.split("/");
-      const href = hrefs[hrefs.length - 1];
+      const linkPath = anchor.href.replace(/#.*/, '');
 
-      if (anchor.host === host && regExp.test(href)) {
-        const targetId = href.substr(1);
+      if (anchor.href.includes('#') && linkPath === current) {
+        const targetId = anchor.href.replace(/.*#/g, '');
         const target = document.getElementById(targetId);
-        const targetPos = target.offsetTop - offset;
+        const targetPos = target ? target.offsetTop - offset : 0;
 
-        anchor.addEventListener("click", () => {
-          event.preventDefault();
-          this.scroll(targetPos);
+        anchor.addEventListener('click', () => {
+          if (event) {
+            event.preventDefault();
+            this.scroll(targetPos);
+          }
         });
       }
     }
@@ -37,8 +41,7 @@ export default class SmoothScroll {
     const distance = Math.abs(pos - targetPos);
 
     const scrollStep = () => {
-      const easeT = EasingFunctions.linear(t);
-      console.log(easeT);
+      const easeT = EasingFunctions.easeInOutCubic(t);
       const step = distance * easeT;
 
       if (pos > targetPos) {

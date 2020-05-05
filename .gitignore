@@ -1,0 +1,8 @@
+/node_modules
+/dist
+
+npm-debug.log
+tsconfig.json
+webpack.config.js
+package.json
+index.ts
